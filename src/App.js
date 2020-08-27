@@ -13,43 +13,69 @@ const newRandomCard = () => {
   }
 }
 
-function omit(obj, keyToOmit) {
-  let {[keyToOmit]: _, ...rest} = obj;
-  return rest;
-}
-
-// Example
-const objectWithKVPs = {
-  key: 'value',
-  foo: 'foo value',
-  bar: 'bar value',
-  abc: { nested: 'object' }
-}
-
-// To remove the foo key value pair
-const newObjectWithKVPs = omit(objectWithKVPs, 'foo');
-
 
 
 class App extends Component {
   state = {
-    store:STORE
+    store: STORE
+  }
+
+  
+  
+  handleAdd = (listId) => {
+    //console.log('hi')
+    const newCard = newRandomCard()
+    const { lists, allCards } = this.state.store
+    const newList = lists.map(list => {
+      if (listId === list.id) {
+        return { 
+
+          ...list,
+          cardIds: [...list.cardIds, newCard.id]
+        }
+      } 
+        return list
+      })
+
+
+      this.setState({
+        
+        store:{
+          lists:newList,
+          allCards:{
+            ...allCards,
+            [newCard.id]: newCard
+          }
+        }
+
+    
+
+      })
+
   }
   
-  handleDelete = (cardId) => {
-    const {lists, allCards} = this.state.store
+  
+  handleDelete = (cardId, listId) => {
+    const { lists, allCards } = this.state.store
 
-    const newList = lists.map( list => ({
-      ...list,
-      cardIds: list.cardIds.filter(id => id !== cardId) 
-    }))
 
-    const newCards = omit(allCards, cardId)
+    const newList = lists.map(list => {
+      if (listId === list.id) {
+        return { 
+
+          ...list,
+    
+          cardIds: list.cardIds.filter(id => id !== cardId)
+        }
+      } else {
+        return {...list}
+      }
+    }) 
 
     this.setState({
-      store:{
+      store: {
         lists: newList,
-        allCards: newCards
+        allCards
       }
     })
   }
@@ -67,9 +93,11 @@ class App extends Component {
             <List
               key={list.id}
               id={list.id}
+              //newCard={}
               header={list.header}
               cards={list.cardIds.map(id => store.allCards[id])}
               onDelete={this.handleDelete}
+              onAdd={this.handleAdd}
             />
           ))}
         </div>
